@@ -1,0 +1,17 @@
+{{define "page-layout"}}
+<!DOCTYPE html>
+<html>
+    {{template "head"}}
+    <body>
+        <h1>Title is -- {{.}} --</h1>      
+
+        <div>
+            {{template "content"}}
+        </div>
+
+        <div>
+            something after content
+        </div>
+    </body>
+</html>
+{{end}}
