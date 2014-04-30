@@ -15,11 +15,18 @@ import (
 	"text/template"
 )
 
+/*
+   The router is pretty easy to use. You don't have to name the functions the same as the path. I only do so to
+   make creating these examples easire to pump out. aka Walt is Lazy.
+*/
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", Home)
 	r.HandleFunc("/simplestTemplate", simplestTemplate)
+	f.HandleFunc("/regexRouterExample/{foo:^a|^b}", regexRouterExample)
 	r.HandleFunc("/simpleInlineTemplate", simpleInlineTemplate)
+	r.HandleFunc("/inlineWithFunctionCall", inlineWithFunctionCall)
+	r.HandleFunc("/inlineWithALoop", inlineWithALoop)
 
 	http.Handle("/", r)
 	http.ListenAndServe(":9999", nil)
@@ -40,7 +47,9 @@ func Home(response http.ResponseWriter, request *http.Request) {
         </div>
         <ul>
             <li><a href="/simplestTemplate">Simplest Template</a> -- a template with variables subbed in via Fprintf.</li>
-            <li><a href="/simpleInlineTemplate">Simple Inline Template</a> -- a template with multiple variables and a loop.</li>            
+            <li><a href="/simpleInlineTemplate">Simple Inline Template</a> -- a template with multiple variables from a struct.</li> 
+            <li><a href="/inlineWithFunctionCall">Simple Inline Template</a> -- a template with a function call.</li> 
+            <li><a href="/inlineWithALoop">Simple Inline Template</a> -- a template with a loop.</li> 
         </ul>
     </body>
 </html>`
@@ -123,4 +132,16 @@ func simpleInlineTemplate(response http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func regexRouterExample(response http.ResponseWriter, request *http.Request) {
+
+}
+
+func inlineWithFunctionCall(response http.ResponseWriter, request *http.Request) {
+
+}
+
+func inlineWithALoop(response http.ResponseWriter, request *http.Request) {
+
 }
