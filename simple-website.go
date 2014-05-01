@@ -23,7 +23,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", Home)
 	r.HandleFunc("/simplestTemplate", simplestTemplate)
-	f.HandleFunc("/regexRouterExample/{foo:^a|^b}", regexRouterExample)
+	r.HandleFunc("/regexRouter/{foo:[0-9]+}", regexRouter)
 	r.HandleFunc("/simpleInlineTemplate", simpleInlineTemplate)
 	r.HandleFunc("/inlineWithFunctionCall", inlineWithFunctionCall)
 	r.HandleFunc("/inlineWithALoop", inlineWithALoop)
@@ -47,7 +47,8 @@ func Home(response http.ResponseWriter, request *http.Request) {
         </div>
         <ul>
             <li><a href="/simplestTemplate">Simplest Template</a> -- a template with variables subbed in via Fprintf.</li>
-            <li><a href="/simpleInlineTemplate">Simple Inline Template</a> -- a template with multiple variables from a struct.</li> 
+            <li><a href="/regexRouter/foo:apple">Regex Var Success!</a> -- regex router with a named variable defined by the regex</li>
+            <li><a href="/regexRouter/foo:zounds">Regex Var Fail!</a> -- regex router with a named variable defined by the regex</li>
             <li><a href="/inlineWithFunctionCall">Simple Inline Template</a> -- a template with a function call.</li> 
             <li><a href="/inlineWithALoop">Simple Inline Template</a> -- a template with a loop.</li> 
         </ul>
@@ -134,8 +135,18 @@ func simpleInlineTemplate(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func regexRouterExample(response http.ResponseWriter, request *http.Request) {
+func regexRouter(response http.ResponseWriter, request *http.Request) {
+	foo := mux.Vars(request)["foo"]
 
+	page := `
+<html>
+    <head></head>
+    <body>
+        <h1>Value of foo: </h1>
+        <p>%s</p>
+    </body>
+</html>`
+	fmt.Fprintf(response, page, foo)
 }
 
 func inlineWithFunctionCall(response http.ResponseWriter, request *http.Request) {

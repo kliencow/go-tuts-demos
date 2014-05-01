@@ -36,7 +36,10 @@ func main() {
 }
 
 /*
-   This simple home handler show how to imput a parameter as a single option which is interpreted as %s for string.
+	HOME PAGE
+    =========
+
+    Just stuck here like this to make editing quick and easy.
 */
 func Home(response http.ResponseWriter, request *http.Request) {
 	page := `
@@ -80,11 +83,14 @@ func Home(response http.ResponseWriter, request *http.Request) {
 }
 
 /*
-   Load a simple html page from the simple html page folder.
+	SIMPLE PAGE LOAD EXAMPLE
+   	========================
 
-   NOTES:
-    This should be considered rather sanitary as long as any page is allowed to be viewed by anyone.
-    This will not allow dot-dots, so attackers cannot load anything on the system. For instance, this does not work:
+   	Load a simple html page from the simple html page folder.
+
+   	NOTES:
+    	This should be considered rather sanitary as long as any page is allowed to be viewed by anyone.
+    	This will not allow dot-dots, so attackers cannot load anything on the system. For instance, this does not work:
 
     $ curl localhost:9999/pages/../../../../basics.go
 
@@ -107,6 +113,9 @@ func pages(response http.ResponseWriter, request *http.Request) {
 }
 
 /*
+	COMPOSITE PAGES EXAMPLE
+    =======================
+
 	This is an example of just printing a page with some custom templates in it.
 	This is a pattern that can be used to print static HTML pages with common headers. So
 	they really aren't completely static.
@@ -118,16 +127,24 @@ func pages(response http.ResponseWriter, request *http.Request) {
 	TODO: rename the variables to be better. They kinda suck.
 */
 func compositePages(response http.ResponseWriter, request *http.Request) {
+	// Build the folder names. Normally, these would not be defined in the function, but in the
+	// pagage or struct.
 	templatesFolder := "sitehelpers/simple-res/templates/"
 	bodiesFolder := templatesFolder + "bodies/"
+	commonFolder := templatesFolder + "common/"
 
+	// get the body file name to build the
 	body := mux.Vars(request)["body"]
 
+	// build the filenames (in this case it's page1.html and common.html because it's a demo)
 	bodyFilename := bodiesFolder + body + ".html"
-	commonFilename := templatesFolder + "common/common.html"
+	commonFilename := commonFolder + "common.html"
 
+	// parse the templates or 404
 	if exists(commonFilename) && exists(bodyFilename) {
 		templateSet, _ := template.ParseFiles(commonFilename, bodyFilename)
+		// Why nil? because we're not sending any info or data to the templates
+		// "base" is the name of the common template. Maybe I should sync this idea up
 		templateSet.ExecuteTemplate(response, "base", nil)
 	} else {
 		do404(response)
