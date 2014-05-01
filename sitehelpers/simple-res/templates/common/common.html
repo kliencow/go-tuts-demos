@@ -1,0 +1,19 @@
+{{define "base"}}
+<html>
+	<head>
+		{{template "headerExtras"}}
+	<head>
+	<body>
+		<h2>Header stuff</h2>
+		<div>Some stuff before the content, like a common header</div>
+		<h2>Body stuff</h2>			
+		<div class="content">			
+			{{template "body"}}
+		</div>
+		<h2>Footer Stuff</h2>
+		<div>Some stuff after the content, like a common footer</div>
+		<br/>
+		<div><strong>Note: The page title is set!</strong></div>
+	</body>
+</html>
+{{end}}

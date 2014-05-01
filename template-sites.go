@@ -14,13 +14,14 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	//"text/template"
+	"text/template"
 )
 
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", Home)
 	r.HandleFunc("/pages/{page}", pages)
+	r.HandleFunc("/compositePages/{body}", compositePages)
 	r.HandleFunc("/simpleImportedTemplate", simpleImportedTemplate)
 	r.HandleFunc("/complexImportedTemplate", complexImportedTemplate)
 	r.HandleFunc("/fullyTemplatedTemplate", fullyTemplatedTemplate)
@@ -47,14 +48,19 @@ func Home(response http.ResponseWriter, request *http.Request) {
         <div>
             %s
         </div>
+        <h3>Example Pages</h3>
         <ul>
             <li><a href="/pages/simple-page">Simple Page Load</a> -- this is a demonstration of simply loading html pages and sending them out. No templating involved.</li>
+            <li><a href="/compositePages/page1">Composite Page Load</a> -- This is just like the page load, but it uses a common template to wrap the pages. In other words, content only with a common wrapper.</li>
             <li><a href="/simpleImportedTemplate">Simple Imported Template</a> -- a template imported from an HTML file.</li>
             <li><a href="/complexImportedTemplate">Complex Imported Template</a> -- a template imported from an HTML file with lots of variables.</li>
             <li><a href="/fullyTemplatedTemplate">Fully Templated Template</a> -- a template that incorporates loops, other template files, variables, and loops. Also includes css, images, and js files.</li>
         </ul>
+        <h3>Utility Functions</h3>
         <ul>
-            <li><a href="/image/modemConvo.jpg">Image load example</a> -- Example of loading an images.</li>
+            <li><a href="/images/modemConvo.jpg">Image load example</a> -- Example of loading an images.</li>
+            <li><a href="/js/alert.js">Javascript load example</a> -- Example of loading javascipt.</li>
+            <li><a href="/css/css1.css">CSS load example</a> -- Example of loading css.</li>
         </ul>
     </body>
 </html>`
@@ -95,6 +101,34 @@ func pages(response http.ResponseWriter, request *http.Request) {
 	if exists(filename) {
 		html, _ := ioutil.ReadFile(filename)
 		fmt.Fprintf(response, string(html))
+	} else {
+		do404(response)
+	}
+}
+
+/*
+	This is an example of just printing a page with some custom templates in it.
+	This is a pattern that can be used to print static HTML pages with common headers. So
+	they really aren't completely static.
+
+	The interesting part about this function is that we can name all sorts of templates in line with
+	each other. So, instead of having a page body determine it's title, we can just make these things
+	inline with one another.
+
+	TODO: rename the variables to be better. They kinda suck.
+*/
+func compositePages(response http.ResponseWriter, request *http.Request) {
+	templatesFolder := "sitehelpers/simple-res/templates/"
+	bodiesFolder := templatesFolder + "bodies/"
+
+	body := mux.Vars(request)["body"]
+
+	bodyFilename := bodiesFolder + body + ".html"
+	commonFilename := templatesFolder + "common/common.html"
+
+	if exists(commonFilename) && exists(bodyFilename) {
+		templateSet, _ := template.ParseFiles(commonFilename, bodyFilename)
+		templateSet.ExecuteTemplate(response, "base", nil)
 	} else {
 		do404(response)
 	}
