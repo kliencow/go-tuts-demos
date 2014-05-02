@@ -23,8 +23,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", Home)
 	r.HandleFunc("/simplestTemplate", simplestTemplate)
-	r.HandleFunc("/regexRouter/{foo:[0-9]+}", regexRouter)
-	r.HandleFunc("/simpleInlineTemplate", simpleInlineTemplate)
+	r.HandleFunc("/regexRouter/{foo:a.*}", regexRouter) // note this evaluates from beginning to end, like using ^[]$.
 	r.HandleFunc("/inlineWithFunctionCall", inlineWithFunctionCall)
 	r.HandleFunc("/inlineWithALoop", inlineWithALoop)
 
@@ -47,10 +46,10 @@ func Home(response http.ResponseWriter, request *http.Request) {
         </div>
         <ul>
             <li><a href="/simplestTemplate">Simplest Template</a> -- a template with variables subbed in via Fprintf.</li>
-            <li><a href="/regexRouter/foo:apple">Regex Var Success!</a> -- regex router with a named variable defined by the regex</li>
-            <li><a href="/regexRouter/foo:zounds">Regex Var Fail!</a> -- regex router with a named variable defined by the regex</li>
-            <li><a href="/inlineWithFunctionCall">Simple Inline Template</a> -- a template with a function call.</li> 
-            <li><a href="/inlineWithALoop">Simple Inline Template</a> -- a template with a loop.</li> 
+            <li><a href="/regexRouter/apple">Regex Var Success!</a> -- regex router with a named variable defined by the regex</li>
+            <li><a href="/regexRouter/zounds">Regex Var Fail!</a> -- regex router with a named variable defined by the regex</li>
+            <li><a href="/inlineWithFunctionCall">Inline Template With Function Call</a> -- a template with a function call.</li> 
+            <li><a href="/inlineWithALoop">Inline Template with a loop</a> -- a template with a loop.</li> 
         </ul>
     </body>
 </html>`
@@ -149,10 +148,114 @@ func regexRouter(response http.ResponseWriter, request *http.Request) {
 	fmt.Fprintf(response, page, foo)
 }
 
-func inlineWithFunctionCall(response http.ResponseWriter, request *http.Request) {
+type PageFuncDeets struct {
+	Title   string "TEST PAGE"
+	seed    int
+	FuncYou func() string
+}
 
+func (pfd PageFuncDeets) Rando() int {
+	return pfd.seed + 6
+}
+
+func (pfd PageFuncDeets) ThisThat() string {
+	return pfd.FuncYou()
+}
+
+/*
+
+*/
+func inlineWithFunctionCall(response http.ResponseWriter, request *http.Request) {
+	details := PageFuncDeets{
+		Title: "Function Call Test Page",
+		seed:  10,
+		FuncYou: func() string {
+			return "Whoa whoa whoa whoa whoa there"
+		},
+	}
+
+	page := `
+<html>
+    <head></head>
+    <body>
+            <h1>{{.Title}}</h1>        
+            <h3>The number: {{.Rando}}</h3>
+            <h3>Another Func: {{.ThisThat}}</h3>
+    </body>
+</html>`
+
+	t, err := template.New("Test").Parse(page)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = t.Execute(response, details)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+type PageLoopDeets struct {
+	Title      string "TEST PAGE"
+	Ranger     map[string]string
+	StartIndex int
+	Factor     int
+	MaxVal     int
 }
 
 func inlineWithALoop(response http.ResponseWriter, request *http.Request) {
+	details := PageLoopDeets{
+		Title: "Loop Page",
+		Ranger: map[string]string{
+			"key1": "value1",
+			"key2": "value2",
+			"key3": "value3",
+			"key4": "value4",
+		},
+		StartIndex: 37,
+		Factor:     3,
+		MaxVal:     1200,
+	}
 
+	page := `
+<html>
+    <head></head>
+    <body>
+        <h1>{{.Title}}</h1>
+        <h2>THE SIMPLE RANGE</h2>
+        <div>
+            <ol>
+                {{range .Ranger}}
+                    <li>{{.}}</li>
+                {{end}}
+            </ol>
+        </div>
+
+        <h2>THE KEY-VALUE RANGE</h2>
+        <div>
+            <ol>
+                {{range $key, $value := .Ranger}}
+                    <li>{{$key}}::{{$value}}</li>
+                {{end}}
+            </ol>
+        </div>
+
+        <h2>THE LOOP</h2>
+        <div>
+            <ol>
+
+            </ol>
+        </div>        
+    </body>
+</html>`
+
+	t, err := template.New("Test").Parse(page)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = t.Execute(response, details)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
