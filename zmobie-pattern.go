@@ -11,19 +11,30 @@ var rando *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 type ZmobieList []Zmobie
 
 type Zmobie struct {
-	MyInt    int
-	Name     string
+	MyInt   int
+	NumArms int
+	NumLegs int
+	Name    string
+
 	DerFuncs map[string]func(z *Zmobie)
+	Shout    func(z *Zmobie)
 }
 
 func (z *Zmobie) Passer(funcName string) {
 	z.DerFuncs[funcName](z)
 }
 
-func (z *Zmobie) Shout() {
+func ShoutName(z *Zmobie) {
 	fmt.Println(z.Name)
 }
 
+func ShoutArms(z *Zmobie) {
+	fmt.Println("I've got", z.NumArms, "arms!")
+}
+
+func ShoutLegs(z *Zmobie) {
+	fmt.Println("I've got", z.NumLegs, "legs!")
+}
 func MoreZmobies() Zmobie {
 	return Zmobie{
 		MyInt:   4,
@@ -41,7 +52,19 @@ func MoreZmobies() Zmobie {
 				z.MyInt = z.MyInt * 2
 			},
 		},
+		Shout: ZmobieYell(),
 	}
+}
+
+func ZmobieYell() func(z *Zmobie) {
+	chance := rando.Intn(30)
+	switch {
+	case chance < 10:
+		return ShoutName
+	case chance < 20:
+		return ShoutLegs
+	}
+	return ShoutArms
 }
 
 func ZmobieName() string {
@@ -75,7 +98,7 @@ func (zl *ZmobieList) SpamZmobies(spamCount int) {
 
 func (zl ZmobieList) RollCall() {
 	for _, z := range zl {
-		z.Shout()
+		z.Shout(&z)
 	}
 }
 
