@@ -9,8 +9,8 @@ import (
 
 /*
     NextPause is a closure around getting new durations from a consistent seed. 
-    It was found that we could run out of random numbers, granter we were using numbers on the order
-    of 10M * 200M. Still, it should no be running out of numbers. To combant this issue, we create 
+    It was found that we could run out of random numbers. Granted, we were using numbers on the order
+    of 10M * 200M. Still, it should not be running out of numbers. To combant this issue, we create 
     a PNRG for each go-routine.
 */
 func NextPause() func() (pause time.Duration) {
@@ -23,7 +23,7 @@ func NextPause() func() (pause time.Duration) {
 
 
 /*
-    FindStuff is a worker meant to be used in a go-routine. His job is to fill the channel with cruct. In this
+    FindStuff is a worker meant to be used in a go-routine. His job is to fill the channel with cruft. In this
     case his cruft is his channel number.
 */
 func FindStuff(num int, c chan int) {    
