@@ -1,6 +1,8 @@
 Basic Concepts
 ==============
+The code in this project may or maynot have been written by me. This is a project full of half projects I use as reference points. Some of the code may be from stackoverlows, goland google groups, emails, brainstorms, and other githib repos. 
 
+This is a work in progress. Shoot, some of the files may be incomplete or non-functional. This project really is for me to share ideas with other folks and future-me. 
 
 Go is Great
 ===========
